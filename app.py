@@ -18,7 +18,9 @@ def home():
 
 @app.route("/generate", methods=["POST"])
 def generate():
-    user_input = request.json.get("message")
+    data=request.get_json()
+    user_input=data.get("message")if data else None
+    print("INPUT:",user_input)
 
     if not user_input:
         return jsonify({"error": "Empty input"}), 400
