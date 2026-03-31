@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Text Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>AI Text Generator</h1>
+
+    <div id="chat-box"></div>
+
+    <div class="input-area">
+        <textarea id="user-input" placeholder="Type your message..."></textarea>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+async function sendMessage() {
+    const inputField = document.getElementById("user-input");
+    const chatBox = document.getElementById("chat-box");
+
+    const message = inputField.value.trim();
+    if (!message) return;
+
+    // Show user message
+    chatBox.innerHTML += <div class="user-msg">${message}</div>;
+    inputField.value = "";
+
+    // Send to backend
+    const response = await fetch("/generate", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: message })
+    });
+
+    const data = await response.json();
+
+    if (data.response) {
+        chatBox.innerHTML += <div class="ai-msg">${data.response}</div>;
+    } else {
+        chatBox.innerHTML += <div class="error-msg">${data.error}</div>;
+    }
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+</script>
+
+</body>
+</html>
