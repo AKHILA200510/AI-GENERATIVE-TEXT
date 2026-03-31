@@ -3,51 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>AI Text Generator</title>
+
+    <!-- Link CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
 <div class="container">
-    <h1>AI Text Generator</h1>
+    <h2>AI Text Generator</h2>
 
-    <div id="chat-box"></div>
+    <textarea id="input" placeholder="Type something..."></textarea>
 
-    <div class="input-area">
-        <textarea id="user-input" placeholder="Type your message..."></textarea>
-        <button onclick="sendMessage()">Send</button>
-    </div>
+    <button onclick="sendMessage()">Generate</button>
+
+    <div id="output"></div>
 </div>
 
 <script>
 async function sendMessage() {
-    const inputField = document.getElementById("user-input");
-    const chatBox = document.getElementById("chat-box");
+    const message = document.getElementById("input").value;
 
-    const message = inputField.value.trim();
-    if (!message) return;
-
-    // Show user message
-    chatBox.innerHTML += <div class="user-msg">${message}</div>;
-    inputField.value = "";
-
-    // Send to backend
-    const response = await fetch("/generate", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ message: message })
-    });
-
-    const data = await response.json();
-
-    if (data.response) {
-        chatBox.innerHTML += <div class="ai-msg">${data.response}</div>;
-    } else {
-        chatBox.innerHTML += <div class="error-msg">${data.error}</div>;
+    if (!message) {
+        alert("Enter something first!");
+        return;
     }
 
-    chatBox.scrollTop = chatBox.scrollHeight;
+    document.getElementById("output").innerText = "Generating...";
+
+    try {
+        const response = await fetch("/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+
+        document.getElementById("output").innerText = data.response || data.error;
+
+    } catch (error) {
+        document.getElementById("output").innerText = "Error: " + error;
+    }
 }
 </script>
 
